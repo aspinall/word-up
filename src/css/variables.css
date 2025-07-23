@@ -1,0 +1,79 @@
+:root {
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f7fafc;
+  --color-text: #2d3748;
+  --color-text-light: #718096;
+  --color-border: #e2e8f0;
+  --color-border-active: #4a5568;
+  
+  /* Game colors */
+  --color-correct: #48bb78;
+  --color-present: #ed8936;
+  --color-absent: #a0aec0;
+  --color-empty: #ffffff;
+  
+  /* Keyboard colors */
+  --color-key-bg: #edf2f7;
+  --color-key-text: #2d3748;
+  --color-key-active: #cbd5e0;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Layout */
+  --max-width: 500px;
+  --border-radius: 0.375rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-lg: 0.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+  
+  /* Game grid */
+  --tile-size: min(62px, calc((100vw - 10px) / 5 - 8px));
+  --tile-gap: 5px;
+  --keyboard-key-height: 58px;
+}
+
+/* Dark mode support (optional for future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a202c;
+    --color-bg-secondary: #2d3748;
+    --color-text: #f7fafc;
+    --color-text-light: #a0aec0;
+    --color-border: #4a5568;
+    --color-border-active: #718096;
+    
+    --color-key-bg: #4a5568;
+    --color-key-text: #f7fafc;
+    --color-key-active: #718096;
+  }
+}
