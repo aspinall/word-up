@@ -1,6 +1,8 @@
 // Core game logic for Word Up
 // Handles game state, word validation, and scoring
 
+import { WORDS } from './dictionaries/words.js';
+
 export class GameLogic {
   constructor() {
     this.targetWord = '';
@@ -14,68 +16,8 @@ export class GameLogic {
     // Letter frequency tracking for keyboard hints
     this.letterStates = new Map(); // 'unused', 'absent', 'present', 'correct'
     
-    // Basic word list for validation (will be expanded)
-    this.validWords = new Set([
-      'ABOUT', 'ABOVE', 'AFTER', 'AGAIN', 'ALONG', 'AMONG', 'ANGEL', 'ANGRY',
-      'BADGE', 'BASIC', 'BEACH', 'BEGAN', 'BEING', 'BELOW', 'BENCH', 'BIRTH',
-      'BOARD', 'BREAD', 'BREAK', 'BRING', 'BROAD', 'BROWN', 'BUILD', 'BUILT',
-      'CHAIR', 'CHART', 'CHECK', 'CHEST', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL',
-      'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLIMB', 'CLOCK', 'CLOSE', 'COURT',
-      'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME', 'CROSS', 'CROWD',
-      'DAILY', 'DANCE', 'DEATH', 'DOUBT', 'DRAFT', 'DRAMA', 'DREAM', 'DRESS',
-      'DRINK', 'DRIVE', 'DROVE', 'DYING', 'EAGER', 'EARLY', 'EARTH', 'EIGHT',
-      'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'ENTRY', 'EQUAL', 'ERROR', 'EVENT',
-      'EVERY', 'EXACT', 'EXIST', 'EXTRA', 'FAITH', 'FALSE', 'FAULT', 'FIELD',
-      'FIFTH', 'FIFTY', 'FIGHT', 'FINAL', 'FIRST', 'FIXED', 'FLASH', 'FLOOR',
-      'FOCUS', 'FORCE', 'FORTH', 'FORTY', 'FOUND', 'FRAME', 'FRANK', 'FRESH',
-      'FRONT', 'FRUIT', 'FULLY', 'FUNNY', 'GHOST', 'GIVEN', 'GLASS', 'GLOBE',
-      'GOING', 'GRACE', 'GRADE', 'GRAND', 'GRANT', 'GRASS', 'GRAVE', 'GREAT',
-      'GREEN', 'GROSS', 'GROUP', 'GROWN', 'GUARD', 'GUESS', 'GUEST', 'GUIDE',
-      'HAPPY', 'HARSH', 'HEART', 'HEAVY', 'HENRY', 'HORSE', 'HOTEL', 'HOUSE',
-      'HUMAN', 'HURRY', 'IMAGE', 'INDEX', 'INNER', 'INPUT', 'ISSUE', 'JAPAN',
-      'JIMMY', 'JOINT', 'JONES', 'JUDGE', 'KNOWN', 'LABEL', 'LARGE', 'LASER',
-      'LATER', 'LAUGH', 'LAYER', 'LEARN', 'LEASE', 'LEAST', 'LEAVE', 'LEGAL',
-      'LEVEL', 'LEWIS', 'LIGHT', 'LIMIT', 'LIVED', 'LOCAL', 'LOOSE', 'LOWER',
-      'LUCKY', 'LUNCH', 'LYING', 'MAGIC', 'MAJOR', 'MAKER', 'MARCH', 'MARIE',
-      'MATCH', 'MAYBE', 'MAYOR', 'MEANT', 'MEDIA', 'METAL', 'MIGHT', 'MINOR',
-      'MINUS', 'MIXED', 'MODEL', 'MONEY', 'MONTH', 'MORAL', 'MOUSE', 'MOUTH',
-      'MOVIE', 'MUSIC', 'NEEDS', 'NEVER', 'NEWLY', 'NIGHT', 'NOISE', 'NORTH',
-      'NOTED', 'NOVEL', 'NURSE', 'OCCUR', 'OCEAN', 'OFFER', 'OFTEN', 'ORDER',
-      'OTHER', 'OUGHT', 'PAINT', 'PANEL', 'PAPER', 'PARTY', 'PEACE', 'PETER',
-      'PHASE', 'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PITCH', 'PLACE',
-      'PLAIN', 'PLANE', 'PLANT', 'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS',
-      'PRICE', 'PRIDE', 'PRIME', 'PRINT', 'PRIOR', 'PRIZE', 'PROOF', 'PROUD',
-      'PROVE', 'QUEEN', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE',
-      'RAPID', 'RATIO', 'REACH', 'READY', 'REFER', 'RIGHT', 'RIVER', 'ROBIN',
-      'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RURAL', 'SCALE',
-      'SCENE', 'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHALL', 'SHAPE',
-      'SHARE', 'SHARP', 'SHEET', 'SHELF', 'SHELL', 'SHIFT', 'SHINE', 'SHIRT',
-      'SHOCK', 'SHOOT', 'SHORT', 'SHOWN', 'SIGHT', 'SINCE', 'SIXTH', 'SIXTY',
-      'SIZED', 'SKILL', 'SLEEP', 'SLIDE', 'SMALL', 'SMART', 'SMILE', 'SMITH',
-      'SMOKE', 'SNAKE', 'SNOW', 'SOLID', 'SOLVE', 'SORRY', 'SOUND', 'SOUTH',
-      'SPACE', 'SPARE', 'SPEAK', 'SPEED', 'SPEND', 'SPENT', 'SPLIT', 'SPOKE',
-      'SPORT', 'STAFF', 'STAGE', 'STAKE', 'STAND', 'START', 'STATE', 'STEAM',
-      'STEEL', 'STICK', 'STILL', 'STOCK', 'STONE', 'STOOD', 'STORE', 'STORM',
-      'STORY', 'STRIP', 'STUCK', 'STUDY', 'STUFF', 'STYLE', 'SUGAR', 'SUITE',
-      'SUPER', 'SWEET', 'TABLE', 'TAKEN', 'TASTE', 'TAXES', 'TEACH', 'TEENS',
-      'TEETH', 'TERRY', 'TEXAS', 'THANK', 'THEFT', 'THEIR', 'THEME', 'THERE',
-      'THESE', 'THICK', 'THING', 'THINK', 'THIRD', 'THOSE', 'THREE', 'THREW',
-      'THROW', 'THUMB', 'TIGER', 'TIGHT', 'TIRED', 'TITLE', 'TODAY', 'TOPIC',
-      'TOTAL', 'TOUCH', 'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT',
-      'TREND', 'TRIAL', 'TRIBE', 'TRICK', 'TRIED', 'TRIES', 'TRUCK', 'TRULY',
-      'TRUNK', 'TRUST', 'TRUTH', 'TWICE', 'UNCLE', 'UNDER', 'UNDUE', 'UNION',
-      'UNITY', 'UNTIL', 'UPPER', 'UPSET', 'URBAN', 'USAGE', 'USUAL', 'VALUE',
-      'VIDEO', 'VIRUS', 'VISIT', 'VITAL', 'VOCAL', 'VOICE', 'WASTE', 'WATCH',
-      'WATER', 'WAVE', 'WAYS', 'WHEEL', 'WHERE', 'WHICH', 'WHILE', 'WHITE',
-      'WHOLE', 'WHOSE', 'WIDER', 'WOMAN', 'WOMEN', 'WORLD', 'WORRY', 'WORSE',
-      'WORST', 'WORTH', 'WOULD', 'WRITE', 'WRONG', 'WROTE', 'YOUNG', 'YOUTH'
-    ]);
-    
-    // Common target words for demo
-    this.targetWords = [
-      'ABOUT', 'WORLD', 'THINK', 'GREAT', 'WRITE', 'LIGHT', 'SPEAK', 'HAPPY',
-      'MUSIC', 'DANCE', 'MAGIC', 'DREAM', 'HEART', 'SMILE', 'LEARN', 'PEACE'
-    ];
+    // Single British English word dictionary
+    this.words = WORDS;
   }
 
   // Initialize a new game
@@ -97,14 +39,14 @@ export class GameLogic {
 
   // Get a random target word
   getRandomTargetWord() {
-    const randomIndex = Math.floor(Math.random() * this.targetWords.length);
-    return this.targetWords[randomIndex];
+    const randomIndex = Math.floor(Math.random() * this.words.length);
+    return this.words[randomIndex];
   }
 
   // Check if a word is valid for guessing
   isValidWord(word) {
     if (word.length !== 5) return false;
-    return this.validWords.has(word.toUpperCase());
+    return this.words.includes(word.toUpperCase());
   }
 
   // Process a key press
