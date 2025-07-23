@@ -148,6 +148,8 @@ export class PWAManager {
       if (!this.deferredPrompt && !this.isAppInstalled()) {
         console.log('[PWA] No install prompt available yet, checking PWA criteria');
         this.checkInstallability();
+        // Show a fallback install message if PWA criteria are met
+        this.showFallbackInstallInfo();
       }
     }, 3000);
   }
@@ -291,6 +293,17 @@ export class PWAManager {
       .catch(error => {
         console.log('- Manifest error:', error.message);
       });
+  }
+
+  // Show fallback install information
+  showFallbackInstallInfo() {
+    // Only show if service worker is registered and we're on HTTPS
+    if (this.swRegistration && location.protocol === 'https:') {
+      console.log('[PWA] Showing fallback install info');
+      setTimeout(() => {
+        this.showMessage('💡 Add this game to your home screen! Use your browser\'s "Add to Home Screen" option.', 'info');
+      }, 5000);
+    }
   }
 
   // Get installation status

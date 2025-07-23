@@ -10,12 +10,15 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon.svg'],
+      injectRegister: 'script',
+      strategies: 'generateSW',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: null,
+        mode: 'production',
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -60,8 +63,8 @@ export default defineConfig({
         background_color: '#1a202c',
         display: 'standalone',
         orientation: 'portrait',
-        scope: basePath,
-        start_url: basePath,
+        scope: '.',
+        start_url: '.',
         lang: 'en-GB',
         categories: ['games', 'entertainment', 'education'],
         prefer_related_applications: false,
@@ -70,22 +73,19 @@ export default defineConfig({
             src: './icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
-          },
-          {
-            src: './favicon.svg',
-            sizes: '32x32',
-            type: 'image/svg+xml'
+            purpose: 'any'
           },
           {
             src: './icon.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'maskable'
           },
           {
             src: './icon.svg',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any'
           }
         ]
       },
