@@ -15,12 +15,19 @@ export class PWAManager {
   // Initialize PWA functionality
   async init() {
     try {
+      // Always set up basic functionality
       this.setupOnlineOfflineHandlers();
-      this.setupInstallPrompt();
-      await this.registerServiceWorker();
-      this.setupServiceWorkerMessages();
-      this.checkForUpdates();
       this.updateOnlineStatus();
+      
+      // Only set up PWA features if service worker is available
+      if ('serviceWorker' in navigator) {
+        this.setupInstallPrompt();
+        await this.registerServiceWorker();
+        this.setupServiceWorkerMessages();
+        this.checkForUpdates();
+      } else {
+        console.warn('[PWA] Service Worker not supported in this environment');
+      }
     } catch (error) {
       this.initializationFailed = true;
       errorHandler.handleError('PWA Initialization Failed', error, {
@@ -35,14 +42,33 @@ export class PWAManager {
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       return errorHandler.safeAsync(async () => {
-        this.swRegistration = await navigator.serviceWorker.ready;
-        
-        // Listen for updates
-        errorHandler.safeDom.addEventListener(this.swRegistration, 'updatefound', () => {
-          this.handleServiceWorkerUpdate();
-        });
-        
-        return this.swRegistration;
+        try {
+          // Wait for service worker to be ready with timeout
+          const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Service worker timeout')), 5000)
+          );
+          
+          this.swRegistration = await Promise.race([
+            navigator.serviceWorker.ready,
+            timeout
+          ]);
+          
+          // Listen for updates
+          errorHandler.safeDom.addEventListener(this.swRegistration, 'updatefound', () => {
+            this.handleServiceWorkerUpdate();
+          });
+          
+          return this.swRegistration;
+        } catch (error) {
+          // In development, service worker might not be ready immediately
+          // This is expected behavior and doesn't affect functionality
+          if (process.env.NODE_ENV === 'development' || location.hostname === 'localhost') {
+            console.log('[PWA] Service worker disabled in development mode');
+          } else {
+            console.warn('[PWA] Service worker not ready:', error.message);
+          }
+          return null;
+        }
       }, null, { operation: 'registerServiceWorker' });
     }
     return null;

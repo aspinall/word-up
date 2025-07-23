@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { GameLogic } from '../game.js'
+import { errorHandler } from '../error-handler.js'
 
 // Mock dependencies
 vi.mock('../dictionaries/answers.js', () => ({
@@ -40,7 +41,12 @@ vi.mock('../error-handler.js', () => ({
       } catch (error) {
         return fallback
       }
-    })
+    }),
+    safeStorage: {
+      get: vi.fn(() => null), // No saved game state in tests
+      set: vi.fn(() => true),
+      remove: vi.fn(() => true)
+    }
   }
 }))
 
@@ -330,6 +336,68 @@ describe('GameLogic', () => {
     it('should reject words of wrong length', () => {
       expect(game.isValidWord('HI')).toBe(false)
       expect(game.isValidWord('HELLOS')).toBe(false)
+    })
+  })
+
+  describe('game state persistence', () => {
+    it('should save game state after each guess', () => {
+      game.startNewGame(null, 'daily')
+      // Set up the row to be full (5 letters)
+      game.currentCol = 5
+      // Use 'WORLD' which is in the valid guesses list
+      game.getCurrentGuess = () => 'WORLD'
+      
+      // Clear previous calls to the mock
+      errorHandler.safeStorage.set.mockClear()
+      
+      // Process a valid guess
+      const result = game.processKeyPress('ENTER')
+      
+      expect(result.success).toBe(true)
+      // Check that saveGameState was called (mocked storage.set should be called)
+      expect(errorHandler.safeStorage.set).toHaveBeenCalled()
+    })
+
+    it('should check if daily word is completed', () => {
+      const today = new Date().toISOString().split('T')[0]
+      
+      // Mock a completed game state
+      errorHandler.safeStorage.get.mockReturnValue({
+        date: today,
+        gameState: 'won',
+        targetWord: 'HELLO'
+      })
+      
+      expect(game.isDailyWordCompleted()).toBe(true)
+    })
+
+    it('should return false for non-completed daily word', () => {
+      const today = new Date().toISOString().split('T')[0]
+      
+      // Mock an in-progress game state
+      errorHandler.safeStorage.get.mockReturnValue({
+        date: today,
+        gameState: 'playing',
+        targetWord: 'HELLO'
+      })
+      
+      expect(game.isDailyWordCompleted()).toBe(false)
+    })
+
+    it('should clear old game state from previous days', () => {
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      
+      // Mock old game state
+      errorHandler.safeStorage.get.mockReturnValue({
+        date: yesterday,
+        gameState: 'won',
+        targetWord: 'WORLD'
+      })
+      
+      // Creating new game should clear old state
+      game.initializeDailyGame()
+      
+      expect(errorHandler.safeStorage.remove).toHaveBeenCalledWith(game.gameStateKey)
     })
   })
 })

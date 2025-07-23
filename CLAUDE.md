@@ -13,7 +13,7 @@ British English Wordle-style word game with daily challenges and mobile-first de
 
 ### Performance Tracking & Statistics
 - **Comprehensive Statistics System** - Player statistics with games played, win rate, and guess distribution
-- **Daily & Practice Mode Tracking** - Separate statistics for daily words vs practice games
+- **Daily Mode Tracking** - Statistics focused on daily word challenges with streak counters
 - **Streak Tracking** - Current and maximum streak counters with historical data
 - **Statistics Modal** - Visual display with charts, recent games, and export functionality
 - **Local Storage Persistence** - Statistics saved locally with background sync capability
@@ -115,7 +115,7 @@ public/
 ```
 
 ### Key Classes
-- **GameLogic**: Core game state, word validation, daily/random modes, statistics integration
+- **GameLogic**: Core game state, word validation, daily mode operation, statistics integration
 - **GameUI**: DOM manipulation, animations, keyboard handling, statistics modal
 - **DailyWordGenerator**: Seeded random word generation for daily challenges
 - **GameStatistics**: Statistics tracking, storage, and display with localStorage persistence
@@ -131,8 +131,7 @@ public/
 - ✅ Letter state tracking for keyboard hints
 - ✅ Win/loss detection and game completion
 - ✅ Countdown timer to next daily word
-- ✅ Practice mode with random words
-- ✅ Comprehensive statistics tracking and display
+- ✅ Daily-focused statistics tracking and display
 - ✅ PWA installation and full offline functionality
 - ✅ Online/offline status indicators
 - ✅ Statistics export and data management
@@ -193,7 +192,7 @@ The project includes comprehensive test suites covering:
   - Local storage persistence and fallback modes
   - Data import/export functionality
   - Game history and streak management
-  - Mode-specific statistics (daily vs practice)
+  - Daily mode statistics and tracking
 
 - **DailyWordGenerator** (`src/test/daily-word.test.js`)
   - Deterministic daily word generation
@@ -250,24 +249,45 @@ src/test/
 ```
 
 ### Test Quality & Coverage
-- **74 passing tests** covering critical functionality
+- **151 passing tests** covering critical functionality
 - **Unit tests** for individual component logic
 - **Integration tests** for component interactions
 - **Error boundary tests** for graceful failure handling
 - **Edge case coverage** for robustness validation
 
+### Recent Changes
+
+#### Practice Mode Removal (Latest)
+**Complete removal of practice mode functionality to focus on daily word experience:**
+- ❌ Removed practice button from UI header and statistics modal
+- ❌ Deleted practice-related CSS styles and hover states  
+- ❌ Removed `startPracticeGame()` and `getRandomTargetWord()` methods
+- ❌ Cleaned up practice statistics tracking and display
+- ❌ Updated game logic to daily-mode-only operation
+- ❌ Removed practice tests and updated test expectations
+- ✅ Simplified codebase with 153 lines removed, 16 lines added
+- ✅ All 151 tests passing with streamlined functionality
+
+**Benefits:**
+- Cleaner, more focused user experience
+- Reduced code complexity and maintenance burden
+- Emphasis on the core daily challenge mechanic
+- Improved statistics clarity (daily-only tracking)
+
 ### Git Workflow
 Latest commits show progression:
-1. `ca1ee9f` - Configure PWA and offline capabilities
-2. `3ab827b` - Add comprehensive performance tracking and statistics system
-3. `0b316d3` - Implement daily word system with seed generation
-4. `d38135b` - Implement single dictionary solution for word validation
-5. Previous commits include core game logic, UI, and mobile optimization
+1. `ce64636` - Remove practice mode functionality completely (daily-only focus)
+2. `537f13e` - Remove PWA debug logs after successful installation fix
+3. `88d048f` - Fix PWA installability with better manifest configuration
+4. `aa25371` - Restore PWA installation functionality on GitHub Pages
+5. `ca1ee9f` - Configure PWA and offline capabilities
+6. `3ab827b` - Add comprehensive performance tracking and statistics system
+7. Previous commits include core game logic, dictionary implementation, and mobile optimization
 
 ### Production Status
-**Current State**: Feature-complete game with PWA capabilities
+**Current State**: Streamlined daily-only word game with PWA capabilities
 **Ready For**: Beta testing and user feedback
-**Needs**: Production polish, testing, and deployment setup
+**Needs**: Production polish, analytics, and enhanced accessibility
 
 ## 🎮 How to Play
 1. Guess the 5-letter word in 6 tries
@@ -277,4 +297,4 @@ Latest commits show progression:
 5. New word available daily at midnight
 
 ---
-*Last updated: Current session - Feature-complete game with PWA capabilities, ready for production polish*
+*Last updated: Current session - Streamlined daily-only word game with practice mode removed, focused on core daily challenge experience*

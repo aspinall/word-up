@@ -21,6 +21,9 @@ export class GameLogic {
     // Letter frequency tracking for keyboard hints
     this.letterStates = new Map(); // 'unused', 'absent', 'present', 'correct'
     
+    // Game state persistence
+    this.gameStateKey = 'wordUp_gameState';
+    
     // Initialize components with error handling
     this.initializeGame();
   }
@@ -49,8 +52,8 @@ export class GameLogic {
       
       this.initialized = true;
       
-      // Start with a daily game by default
-      this.startNewGame();
+      // Try to restore existing game state or start new game
+      this.initializeDailyGame();
     } catch (error) {
       this.initialized = false;
       errorHandler.handleError('Game Initialization Error', error, {
@@ -187,6 +190,9 @@ export class GameLogic {
         gameMode: this.gameMode
       });
       
+      // Save game state after win
+      this.saveGameState();
+      
       return {
         success: true,
         action: 'win_game',
@@ -213,6 +219,9 @@ export class GameLogic {
         gameMode: this.gameMode
       });
       
+      // Save game state after loss
+      this.saveGameState();
+      
       return {
         success: true,
         action: 'lose_game',
@@ -223,6 +232,9 @@ export class GameLogic {
       };
     }
 
+    // Save game state after each guess
+    this.saveGameState();
+    
     return {
       success: true,
       action: 'continue_game',
@@ -366,5 +378,81 @@ export class GameLogic {
   // Reset statistics
   resetStatistics() {
     this.statistics.resetStats();
+  }
+
+  // Initialize daily game with state restoration
+  initializeDailyGame() {
+    const today = new Date().toISOString().split('T')[0];
+    const savedState = this.loadGameState();
+    
+    // Check if we have a saved state for today
+    if (savedState && savedState.date === today) {
+      // Restore the saved game state
+      this.restoreGameState(savedState);
+    } else {
+      // Clear any old game state and start fresh
+      this.clearGameState();
+      this.startNewGame();
+    }
+  }
+
+  // Save current game state to localStorage
+  saveGameState() {
+    const today = new Date().toISOString().split('T')[0];
+    const gameState = {
+      date: today,
+      targetWord: this.targetWord,
+      currentRow: this.currentRow,
+      currentCol: this.currentCol,
+      gameState: this.gameState,
+      guesses: [...this.guesses],
+      letterStates: Object.fromEntries(this.letterStates),
+      gameMode: this.gameMode
+    };
+    
+    return errorHandler.safeStorage.set(this.gameStateKey, gameState);
+  }
+
+  // Load game state from localStorage
+  loadGameState() {
+    return errorHandler.safeStorage.get(this.gameStateKey);
+  }
+
+  // Restore game state from saved data
+  restoreGameState(savedState) {
+    this.targetWord = savedState.targetWord;
+    this.currentRow = savedState.currentRow;
+    this.currentCol = savedState.currentCol;
+    this.gameState = savedState.gameState;
+    this.guesses = [...savedState.guesses];
+    this.gameMode = savedState.gameMode || 'daily';
+    
+    // Restore letter states
+    this.letterStates.clear();
+    if (savedState.letterStates) {
+      Object.entries(savedState.letterStates).forEach(([letter, state]) => {
+        this.letterStates.set(letter, state);
+      });
+    } else {
+      // Initialize all letters as unused if no saved states
+      for (let i = 65; i <= 90; i++) {
+        this.letterStates.set(String.fromCharCode(i), 'unused');
+      }
+    }
+  }
+
+  // Clear saved game state
+  clearGameState() {
+    errorHandler.safeStorage.remove(this.gameStateKey);
+  }
+
+  // Check if today's daily word has been completed
+  isDailyWordCompleted() {
+    const today = new Date().toISOString().split('T')[0];
+    const savedState = this.loadGameState();
+    
+    return savedState && 
+           savedState.date === today && 
+           (savedState.gameState === 'won' || savedState.gameState === 'lost');
   }
 }

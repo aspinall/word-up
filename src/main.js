@@ -4,6 +4,57 @@ import { GameLogic } from './game.js'
 import { PWAManager } from './pwa-manager.js'
 import { errorHandler } from './error-handler.js'
 
+// Restore UI state from saved game data
+function restoreUIState(gameUI, gameLogic) {
+  // If game is completed, show the completion status
+  if (gameLogic.gameState === 'won' || gameLogic.gameState === 'lost') {
+    // Restore all previous guesses to the UI
+    gameLogic.guesses.forEach((guess, rowIndex) => {
+      const letters = guess.word.split('');
+      const states = guess.result;
+      gameUI.updateRow(rowIndex, letters, states, false); // No animation on restore
+    });
+    
+    // Restore keyboard states
+    gameLogic.letterStates.forEach((state, letter) => {
+      if (state !== 'unused') {
+        gameUI.updateKeyState(letter, state);
+      }
+    });
+    
+    // Show the completion status
+    if (gameLogic.gameState === 'won') {
+      const guessCount = gameLogic.guesses.length;
+      gameUI.showGameStatus(true, gameLogic.targetWord, guessCount);
+    } else {
+      gameUI.showGameStatus(false, gameLogic.targetWord);
+    }
+  } else if (gameLogic.currentRow > 0 || gameLogic.currentCol > 0) {
+    // Game is in progress, restore the current state
+    
+    // Restore completed rows
+    gameLogic.guesses.forEach((guess, rowIndex) => {
+      const letters = guess.word.split('');
+      const states = guess.result;
+      gameUI.updateRow(rowIndex, letters, states, false); // No animation on restore
+    });
+    
+    // Restore current row if there are letters typed
+    if (gameLogic.currentCol > 0) {
+      // Note: We can't restore the current row letters from gameLogic alone
+      // This would require the UI to also save its tile state, but for now
+      // we'll accept that partial rows are lost on refresh
+    }
+    
+    // Restore keyboard states
+    gameLogic.letterStates.forEach((state, letter) => {
+      if (state !== 'unused') {
+        gameUI.updateKeyState(letter, state);
+      }
+    });
+  }
+}
+
 // Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Check system health before initialization
@@ -26,8 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   gameUI.init();
   
-  // Start today's daily game
-  gameLogic.startDailyGame();
+  // Game has already been initialized in GameLogic constructor
+  // Check if we need to restore UI state for an ongoing game
+  restoreUIState(gameUI, gameLogic);
   
   // Start the daily timer
   gameUI.startDailyTimer(gameLogic);
