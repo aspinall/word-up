@@ -1,15 +1,17 @@
 // Daily word system for Word Up game
 // Generates consistent daily words using date-based seeding
 
-import { WORDS } from './dictionaries/words.js';
+import { ANSWERS } from './dictionaries/answers.js';
 
 export class DailyWordGenerator {
-  constructor() {
+  constructor(answers) {
     // Game epoch - when Word Up daily words started
     this.GAME_EPOCH = new Date('2024-01-01').getTime();
     
     // Salt for additional randomness (change this to reset all daily words)
     this.SEED_SALT = 'WORDUP_DAILY_2024';
+
+    this.answers = answers;
   }
 
   // Get current day number since game epoch
@@ -70,10 +72,10 @@ export class DailyWordGenerator {
   getWordForDay(dayNumber) {
     const seed = this.createSeed(dayNumber);
     const randomValue = this.seededRandom(seed);
-    const wordIndex = Math.floor(randomValue * WORDS.length);
+    const wordIndex = Math.floor(randomValue * this.answers.length);
     
     return {
-      word: WORDS[wordIndex],
+      word: this.answers[wordIndex],
       dayNumber: dayNumber,
       date: new Date(this.GAME_EPOCH + dayNumber * 24 * 60 * 60 * 1000).toDateString()
     };
@@ -157,8 +159,8 @@ export class DailyWordGenerator {
     const word5 = this.getWordForDay(200);
     tests.push({
       name: 'Dictionary test',
-      passed: WORDS.includes(word5.word),
-      details: `Word ${word5.word} is in dictionary: ${WORDS.includes(word5.word)}`
+      passed: this.answers.includes(word5.word),
+      details: `Word ${word5.word} is in dictionary: ${this.answers.includes(word5.word)}`
     });
     
     return {

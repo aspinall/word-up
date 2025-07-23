@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { DailyWordGenerator } from '../daily-word.js'
 
-// Mock the words dictionary
-vi.mock('../dictionaries/words.js', () => ({
-  WORDS: [
+// Mock the answers dictionary
+vi.mock('../dictionaries/answers.js', () => ({
+  ANSWERS: [
     'HELLO', 'WORLD', 'GAMES', 'LIGHT', 'BRAVE', 'QUICK', 'BROWN', 'FOXES',
     'PARTY', 'MUSIC', 'DANCE', 'SMILE', 'LAUGH', 'HAPPY', 'SWEET', 'DREAM'
   ]
@@ -11,9 +11,13 @@ vi.mock('../dictionaries/words.js', () => ({
 
 describe('DailyWordGenerator', () => {
   let generator
+  const mockAnswers = [
+    'HELLO', 'WORLD', 'GAMES', 'LIGHT', 'BRAVE', 'QUICK', 'BROWN', 'FOXES',
+    'PARTY', 'MUSIC', 'DANCE', 'SMILE', 'LAUGH', 'HAPPY', 'SWEET', 'DREAM'
+  ]
 
   beforeEach(() => {
-    generator = new DailyWordGenerator()
+    generator = new DailyWordGenerator(mockAnswers)
     vi.useFakeTimers()
   })
 

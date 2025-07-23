@@ -1,7 +1,8 @@
 // Core game logic for Word Up
 // Handles game state, word validation, and scoring
 
-import { WORDS } from './dictionaries/words.js';
+import { ANSWERS } from './dictionaries/answers.js';
+import { VALID_GUESSES } from './dictionaries/valid-guesses.js';
 import { DailyWordGenerator } from './daily-word.js';
 import { GameStatistics } from './statistics.js';
 import { errorHandler } from './error-handler.js';
@@ -28,13 +29,17 @@ export class GameLogic {
   initializeGame() {
     try {
       // Single British English word dictionary
-      this.words = WORDS;
-      if (!this.words || !Array.isArray(this.words) || this.words.length === 0) {
-        throw new Error('Word dictionary is empty or invalid');
+      this.answers = ANSWERS;
+      this.validGuesses = VALID_GUESSES;
+      if (!this.answers || !Array.isArray(this.answers) || this.answers.length === 0) {
+        throw new Error('Answer dictionary is empty or invalid');
+      }
+      if (!this.validGuesses || !Array.isArray(this.validGuesses) || this.validGuesses.length === 0) {
+        throw new Error('Valid guesses dictionary is empty or invalid');
       }
       
       // Daily word generator
-      this.dailyWordGenerator = new DailyWordGenerator();
+      this.dailyWordGenerator = new DailyWordGenerator(this.answers);
       
       // Statistics tracking
       this.statistics = new GameStatistics();
@@ -50,7 +55,7 @@ export class GameLogic {
       this.initialized = false;
       errorHandler.handleError('Game Initialization Error', error, {
         operation: 'initializeGame',
-        wordsLength: this.words?.length || 0,
+        wordsLength: this.answers?.length || 0,
         gameMode: this.gameMode
       });
     }
@@ -85,14 +90,15 @@ export class GameLogic {
 
   // Get a random target word
   getRandomTargetWord() {
-    const randomIndex = Math.floor(Math.random() * this.words.length);
-    return this.words[randomIndex];
+    const randomIndex = Math.floor(Math.random() * this.answers.length);
+    return this.answers[randomIndex];
   }
 
   // Check if a word is valid for guessing
   isValidWord(word) {
     if (word.length !== 5) return false;
-    return this.words.includes(word.toUpperCase());
+    const upperWord = word.toUpperCase();
+    return this.answers.includes(upperWord) || this.validGuesses.includes(upperWord);
   }
 
   // Process a key press

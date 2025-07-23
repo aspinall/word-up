@@ -1,7 +1,7 @@
 // British English words for Word Up game
-// Single comprehensive dictionary for both validation and target selection
+// Curated list of common words for daily puzzles
 
-export const WORDS = [
+export const ANSWERS = [
   'ABACK', 'ABAFT', 'ABASH', 'ABATE', 'ABBEY', 'ABBOT', 'ABODE', 'ABORT',
   'ABOUT', 'ABOVE', 'ABUSE', 'ABYSS', 'ACHES', 'ACIDS', 'ACORN', 'ACRES',
   'ACTED', 'ACTOR', 'ACUTE', 'ADAGE', 'ADAPT', 'ADDED', 'ADMIN', 'ADMIT',

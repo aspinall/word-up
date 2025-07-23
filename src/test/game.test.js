@@ -2,8 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { GameLogic } from '../game.js'
 
 // Mock dependencies
-vi.mock('../dictionaries/words.js', () => ({
-  WORDS: ['HELLO', 'WORLD', 'GAMES', 'LIGHT', 'BRAVE', 'QUICK', 'BROWN', 'FOXES']
+vi.mock('../dictionaries/answers.js', () => ({
+  ANSWERS: ['HELLO', 'WORLD', 'GAMES', 'LIGHT', 'BRAVE', 'QUICK', 'BROWN', 'FOXES']
+}))
+
+vi.mock('../dictionaries/valid-guesses.js', () => ({
+  VALID_GUESSES: ['GUESS', 'TRIAL', 'WORDS', 'SILLY', 'SMART', 'TESTS', 'PLAYS', 'MIGHT']
 }))
 
 vi.mock('../daily-word.js', () => ({
