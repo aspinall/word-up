@@ -28,6 +28,11 @@ export class GameUI {
           <button class="help-button" id="help-btn" title="Help">?</button>
         </header>
         
+        <div class="daily-info" id="daily-info">
+          <span id="daily-text">Daily Word</span>
+          <span id="daily-timer"></span>
+        </div>
+        
         <main class="main">
           <div class="game-container">
             <div class="game-board" id="game-board"></div>
@@ -310,5 +315,49 @@ export class GameUI {
   // Clear a tile
   clearTile(row, col) {
     this.updateTile(row, col, '', 'empty');
+  }
+
+  // Update daily word information display
+  updateDailyInfo(dailyStats) {
+    const dailyText = document.getElementById('daily-text');
+    const dailyTimer = document.getElementById('daily-timer');
+    
+    if (dailyText && dailyTimer) {
+      dailyText.textContent = `Word #${dailyStats.dayNumber}`;
+      
+      const { hours, minutes } = dailyStats.timeUntilNext;
+      if (hours > 0) {
+        dailyTimer.textContent = `Next word in ${hours}h ${minutes}m`;
+      } else {
+        dailyTimer.textContent = `Next word in ${minutes}m`;
+      }
+    }
+  }
+
+  // Start updating the daily timer
+  startDailyTimer(gameLogic) {
+    // Update immediately
+    const dailyStats = gameLogic.getDailyStats();
+    this.updateDailyInfo(dailyStats);
+    
+    // Update every minute
+    this.dailyTimerInterval = setInterval(() => {
+      const stats = gameLogic.getDailyStats();
+      this.updateDailyInfo(stats);
+      
+      // If we've reached the next day, we could trigger a page refresh
+      // or show a message to the user about the new word
+      if (stats.timeUntilNext.hours === 0 && stats.timeUntilNext.minutes === 0) {
+        this.showMessage('New daily word available! Refresh to play.', 'success');
+      }
+    }, 60000); // Update every minute
+  }
+
+  // Stop the daily timer
+  stopDailyTimer() {
+    if (this.dailyTimerInterval) {
+      clearInterval(this.dailyTimerInterval);
+      this.dailyTimerInterval = null;
+    }
   }
 }

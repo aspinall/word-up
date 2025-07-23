@@ -2,6 +2,7 @@
 // Handles game state, word validation, and scoring
 
 import { WORDS } from './dictionaries/words.js';
+import { DailyWordGenerator } from './daily-word.js';
 
 export class GameLogic {
   constructor() {
@@ -18,11 +19,27 @@ export class GameLogic {
     
     // Single British English word dictionary
     this.words = WORDS;
+    
+    // Daily word generator
+    this.dailyWordGenerator = new DailyWordGenerator();
+    
+    // Game mode: 'daily' or 'random'
+    this.gameMode = 'daily';
   }
 
   // Initialize a new game
-  startNewGame(targetWord = null) {
-    this.targetWord = targetWord || this.getRandomTargetWord();
+  startNewGame(targetWord = null, mode = 'daily') {
+    this.gameMode = mode;
+    
+    if (targetWord) {
+      this.targetWord = targetWord;
+    } else if (mode === 'daily') {
+      const dailyWord = this.dailyWordGenerator.getTodaysWord();
+      this.targetWord = dailyWord.word;
+    } else {
+      this.targetWord = this.getRandomTargetWord();
+    }
+    
     this.currentRow = 0;
     this.currentCol = 0;
     this.gameState = 'playing';
@@ -249,5 +266,45 @@ export class GameLogic {
       currentPosition: `${this.currentRow},${this.currentCol}`,
       letterStates: Object.fromEntries(this.letterStates)
     };
+  }
+
+  // Get today's daily word information
+  getTodaysWordInfo() {
+    return this.dailyWordGenerator.getTodaysWord();
+  }
+
+  // Get daily word stats (including time until next word)
+  getDailyStats() {
+    return this.dailyWordGenerator.getDayStats();
+  }
+
+  // Check if game is in daily mode
+  isDailyMode() {
+    return this.gameMode === 'daily';
+  }
+
+  // Start a random practice game
+  startPracticeGame() {
+    return this.startNewGame(null, 'random');
+  }
+
+  // Start today's daily game
+  startDailyGame() {
+    return this.startNewGame(null, 'daily');
+  }
+
+  // Get word for a specific date (for testing/admin)
+  getWordForDate(dateString) {
+    return this.dailyWordGenerator.getWordForDate(dateString);
+  }
+
+  // Validate the daily word system
+  validateDailySystem() {
+    return this.dailyWordGenerator.validateSystem();
+  }
+
+  // Get preview of upcoming daily words (development only)
+  getDailyWordPreview(days = 7) {
+    return this.dailyWordGenerator.getWordPreview(days);
   }
 }

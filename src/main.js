@@ -9,9 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
   
   gameUI.init();
   
-  // Start a new game
-  const targetWord = gameLogic.startNewGame();
+  // Start today's daily game
+  const targetWord = gameLogic.startDailyGame();
+  const dailyInfo = gameLogic.getTodaysWordInfo();
+  
+  console.log('Daily word info:', dailyInfo); // For development - remove in production
   console.log('Target word:', targetWord); // For development - remove in production
+  
+  // Start the daily timer
+  gameUI.startDailyTimer(gameLogic);
 
   // Handle key presses with actual game logic
   document.addEventListener('keypress', (e) => {
