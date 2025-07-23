@@ -1,0 +1,57 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d3748"/>
+      <stop offset="100%" style="stop-color:#1a202c"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)" rx="80"/>
+  
+  <!-- Game grid representation -->
+  <g stroke="#4a5568" stroke-width="3" fill="none">
+    <!-- Grid lines -->
+    <rect x="80" y="120" width="352" height="272" rx="8"/>
+    <line x1="136" y1="120" x2="136" y2="392"/>
+    <line x1="192" y1="120" x2="192" y2="392"/>
+    <line x1="248" y1="120" x2="248" y2="392"/>
+    <line x1="304" y1="120" x2="304" y2="392"/>
+    <line x1="360" y1="120" x2="360" y2="392"/>
+    <line x1="80" y1="165" x2="432" y2="165"/>
+    <line x1="80" y1="210" x2="432" y2="210"/>
+    <line x1="80" y1="255" x2="432" y2="255"/>
+    <line x1="80" y1="300" x2="432" y2="300"/>
+    <line x1="80" y1="345" x2="432" y2="345"/>
+  </g>
+  
+  <!-- Sample letters -->
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="32" text-anchor="middle">
+    <!-- First row - correct letters (green) -->
+    <rect x="82" y="122" width="52" height="41" fill="#48bb78" rx="4"/>
+    <text x="108" y="148">W</text>
+    <rect x="138" y="122" width="52" height="41" fill="#48bb78" rx="4"/>
+    <text x="164" y="148">O</text>
+    <rect x="194" y="122" width="52" height="41" fill="#48bb78" rx="4"/>
+    <text x="220" y="148">R</text>
+    <rect x="250" y="122" width="52" height="41" fill="#48bb78" rx="4"/>
+    <text x="276" y="148">D</text>
+    <rect x="306" y="122" width="52" height="41" fill="#48bb78" rx="4"/>
+    <text x="332" y="148">S</text>
+    
+    <!-- Second row - mixed results -->
+    <rect x="82" y="167" width="52" height="41" fill="#ed8936" rx="4"/>
+    <text x="108" y="193">G</text>
+    <rect x="138" y="167" width="52" height="41" fill="#4a5568" rx="4"/>
+    <text x="164" y="193">U</text>
+    <rect x="194" y="167" width="52" height="41" fill="#ed8936" rx="4"/>
+    <text x="220" y="193">E</text>
+    <rect x="250" y="167" width="52" height="41" fill="#4a5568" rx="4"/>
+    <text x="276" y="193">S</text>
+    <rect x="306" y="167" width="52" height="41" fill="#4a5568" rx="4"/>
+    <text x="332" y="193">T</text>
+  </g>
+  
+  <!-- App title -->
+  <text x="256" y="460" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="36" text-anchor="middle">Word Up</text>
+</svg>

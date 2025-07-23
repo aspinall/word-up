@@ -77,6 +77,17 @@ export class GameStatistics {
   saveStats() {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
+      
+      // If we have a service worker, request background sync
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(registration => {
+          if ('sync' in registration) {
+            return registration.sync.register('statistics-sync');
+          }
+        }).catch(error => {
+          console.log('[Statistics] Background sync not available:', error);
+        });
+      }
     } catch (error) {
       console.error('Failed to save statistics:', error);
     }

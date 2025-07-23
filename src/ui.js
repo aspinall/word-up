@@ -25,12 +25,16 @@ export class GameUI {
         <header class="header">
           <button class="stats-button" id="stats-btn" title="Statistics">📊</button>
           <h1>Word Up</h1>
-          <button class="help-button" id="help-btn" title="Help">?</button>
+          <div class="header-right">
+            <span class="online-status online" id="online-status" title="Online">🌐</span>
+            <button class="help-button" id="help-btn" title="Help">?</button>
+          </div>
         </header>
         
         <div class="daily-info" id="daily-info">
           <span id="daily-text">Daily Word</span>
           <span id="daily-timer"></span>
+          <button class="practice-toggle" id="practice-toggle" title="Switch to practice mode">Practice</button>
         </div>
         
         <main class="main">

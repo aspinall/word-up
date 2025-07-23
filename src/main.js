@@ -1,11 +1,13 @@
 import './style.css'
 import { GameUI } from './ui.js'
 import { GameLogic } from './game.js'
+import { PWAManager } from './pwa-manager.js'
 
 // Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const gameUI = new GameUI();
   const gameLogic = new GameLogic();
+  const pwaManager = new PWAManager();
   
   gameUI.init();
   
