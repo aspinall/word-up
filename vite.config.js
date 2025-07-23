@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const isProduction = process.env.NODE_ENV === 'production'
+const basePath = isProduction ? '/word-up/' : '/'
+
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/word-up/' : '/',
+  base: basePath,
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -12,6 +15,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        navigateFallback: null,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -56,30 +60,32 @@ export default defineConfig({
         background_color: '#1a202c',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/word-up/',
-        start_url: '/word-up/',
+        scope: basePath,
+        start_url: basePath,
         lang: 'en-GB',
         categories: ['games', 'entertainment', 'education'],
+        prefer_related_applications: false,
         icons: [
           {
-            src: 'icon.svg',
+            src: './icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           },
           {
-            src: 'favicon.svg',
+            src: './favicon.svg',
             sizes: '32x32',
             type: 'image/svg+xml'
-          }
-        ],
-        screenshots: [
+          },
           {
-            src: '/screenshot-mobile.png',
-            sizes: '430x932',
-            type: 'image/png',
-            platform: 'narrow',
-            label: 'Mobile gameplay view'
+            src: './icon.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml'
+          },
+          {
+            src: './icon.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml'
           }
         ]
       },

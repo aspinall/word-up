@@ -127,17 +127,29 @@ export class PWAManager {
 
   // Setup install prompt handling
   setupInstallPrompt() {
+    console.log('[PWA] Setting up install prompt listeners');
+    
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('[PWA] beforeinstallprompt event fired');
       e.preventDefault();
       this.deferredPrompt = e;
       this.showInstallButton();
     });
     
     window.addEventListener('appinstalled', () => {
+      console.log('[PWA] App installed successfully');
       this.deferredPrompt = null;
       this.hideInstallButton();
       this.showMessage('🎉 Word Up installed successfully!', 'success');
     });
+
+    // Check if already installed or installable after a delay
+    setTimeout(() => {
+      if (!this.deferredPrompt && !this.isAppInstalled()) {
+        console.log('[PWA] No install prompt available yet, checking PWA criteria');
+        this.checkInstallability();
+      }
+    }, 3000);
   }
 
   // Show install button
@@ -255,6 +267,30 @@ export class PWAManager {
     } catch (error) {
       return false;
     }
+  }
+
+  // Check PWA installability criteria
+  checkInstallability() {
+    console.log('[PWA] Checking installability criteria:');
+    console.log('- Service Worker registered:', !!this.swRegistration);
+    console.log('- HTTPS:', location.protocol === 'https:');
+    console.log('- Is installed:', this.isAppInstalled());
+    console.log('- Has beforeinstallprompt:', !!this.deferredPrompt);
+    
+    // Check if manifest is accessible
+    fetch('./manifest.webmanifest')
+      .then(response => {
+        console.log('- Manifest accessible:', response.ok);
+        return response.json();
+      })
+      .then(manifest => {
+        console.log('- Manifest loaded:', !!manifest);
+        console.log('- Manifest name:', manifest.name);
+        console.log('- Manifest icons:', manifest.icons?.length || 0);
+      })
+      .catch(error => {
+        console.log('- Manifest error:', error.message);
+      });
   }
 
   // Get installation status
