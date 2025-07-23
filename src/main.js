@@ -19,6 +19,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start the daily timer
   gameUI.startDailyTimer(gameLogic);
 
+  // Override stats button click to pass gameLogic
+  document.getElementById('stats-btn').addEventListener('click', () => {
+    gameUI.showStats(gameLogic);
+  });
+
+  // Add statistics event listeners
+  document.addEventListener('exportStats', () => {
+    const statsData = gameLogic.exportStatistics();
+    const dataStr = JSON.stringify(statsData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `word-up-statistics-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    gameUI.showMessage('Statistics exported successfully!', 'success');
+  });
+
+  document.addEventListener('resetStats', () => {
+    gameLogic.resetStatistics();
+  });
+
   // Handle key presses with actual game logic
   document.addEventListener('keypress', (e) => {
     const { key } = e.detail;

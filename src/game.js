@@ -3,6 +3,7 @@
 
 import { WORDS } from './dictionaries/words.js';
 import { DailyWordGenerator } from './daily-word.js';
+import { GameStatistics } from './statistics.js';
 
 export class GameLogic {
   constructor() {
@@ -22,6 +23,9 @@ export class GameLogic {
     
     // Daily word generator
     this.dailyWordGenerator = new DailyWordGenerator();
+    
+    // Statistics tracking
+    this.statistics = new GameStatistics();
     
     // Game mode: 'daily' or 'random'
     this.gameMode = 'daily';
@@ -146,6 +150,15 @@ export class GameLogic {
     // Check win condition
     if (result.states.every(state => state === 'correct')) {
       this.gameState = 'won';
+      
+      // Record win in statistics
+      this.statistics.recordGame({
+        won: true,
+        guessCount: this.currentRow + 1,
+        targetWord: this.targetWord,
+        gameMode: this.gameMode
+      });
+      
       return {
         success: true,
         action: 'win_game',
@@ -163,6 +176,15 @@ export class GameLogic {
     // Check lose condition
     if (this.currentRow >= this.maxRows) {
       this.gameState = 'lost';
+      
+      // Record loss in statistics
+      this.statistics.recordGame({
+        won: false,
+        guessCount: this.maxRows,
+        targetWord: this.targetWord,
+        gameMode: this.gameMode
+      });
+      
       return {
         success: true,
         action: 'lose_game',
@@ -306,5 +328,35 @@ export class GameLogic {
   // Get preview of upcoming daily words (development only)
   getDailyWordPreview(days = 7) {
     return this.dailyWordGenerator.getWordPreview(days);
+  }
+
+  // Get formatted statistics for display
+  getStatistics() {
+    return this.statistics.getDisplayStats();
+  }
+
+  // Check if player has played today
+  hasPlayedToday() {
+    return this.statistics.hasPlayedToday(this.gameMode);
+  }
+
+  // Get statistics for a specific period
+  getStatsForPeriod(days = 30) {
+    return this.statistics.getStatsForPeriod(days);
+  }
+
+  // Export statistics
+  exportStatistics() {
+    return this.statistics.exportStats();
+  }
+
+  // Import statistics
+  importStatistics(data) {
+    return this.statistics.importStats(data);
+  }
+
+  // Reset statistics
+  resetStatistics() {
+    this.statistics.resetStats();
   }
 }

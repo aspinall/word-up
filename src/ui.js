@@ -143,9 +143,6 @@ export class GameUI {
       this.showHelp();
     });
 
-    document.getElementById('stats-btn').addEventListener('click', () => {
-      this.showStats();
-    });
   }
 
   // Handle key press events (to be connected to game logic)
@@ -286,9 +283,217 @@ export class GameUI {
     this.showMessage('Help: Guess the word in 6 tries! Green = correct, Yellow = wrong position, Gray = not in word', 'success');
   }
 
-  // Show stats modal (placeholder)
-  showStats() {
-    this.showMessage('Statistics feature coming soon!', 'success');
+  // Show stats modal
+  showStats(gameLogic) {
+    const stats = gameLogic.getStatistics();
+    this.showStatsModal(stats);
+  }
+
+  // Create and show statistics modal
+  showStatsModal(stats) {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('stats-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'stats-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Statistics</h2>
+          <button class="modal-close" id="stats-close">&times;</button>
+        </div>
+        
+        <div class="stats-container">
+          <div class="stats-section">
+            <h3>Overall Performance</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">${stats.overall.played}</div>
+                <div class="stat-label">Played</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.overall.winRate}%</div>
+                <div class="stat-label">Win Rate</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.overall.currentStreak}</div>
+                <div class="stat-label">Current Streak</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.overall.maxStreak}</div>
+                <div class="stat-label">Max Streak</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.overall.averageGuesses}</div>
+                <div class="stat-label">Avg Guesses</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-section">
+            <h3>Daily Words</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">${stats.daily.played}</div>
+                <div class="stat-label">Played</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.daily.winRate}%</div>
+                <div class="stat-label">Win Rate</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.daily.currentStreak}</div>
+                <div class="stat-label">Current Streak</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.daily.maxStreak}</div>
+                <div class="stat-label">Max Streak</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-section">
+            <h3>Practice Games</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">${stats.practice.played}</div>
+                <div class="stat-label">Played</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.practice.winRate}%</div>
+                <div class="stat-label">Win Rate</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${stats.practice.averageGuesses}</div>
+                <div class="stat-label">Avg Guesses</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-section">
+            <h3>Guess Distribution</h3>
+            <div class="distribution-chart">
+              ${this.createDistributionChart(stats.guessDistribution, stats.overall.played)}
+            </div>
+          </div>
+
+          <div class="stats-section">
+            <h3>Recent Games</h3>
+            <div class="recent-games">
+              ${this.createRecentGamesList(stats.recentGames)}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" id="export-stats">Export Data</button>
+          <button class="btn-secondary" id="reset-stats">Reset Stats</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Add event listeners for modal
+    this.addStatsModalListeners(modal);
+
+    // Show modal with animation
+    setTimeout(() => modal.classList.add('show'), 10);
+  }
+
+  // Create distribution chart HTML
+  createDistributionChart(distribution, totalGames) {
+    const maxCount = Math.max(...distribution);
+    
+    return distribution.map((count, index) => {
+      const percentage = totalGames > 0 ? Math.round((count / totalGames) * 100) : 0;
+      const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
+      
+      return `
+        <div class="distribution-row">
+          <span class="guess-number">${index + 1}</span>
+          <div class="distribution-bar">
+            <div class="bar-fill" style="width: ${barWidth}%"></div>
+            <span class="bar-count">${count}</span>
+          </div>
+          <span class="bar-percentage">${percentage}%</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Create recent games list HTML
+  createRecentGamesList(recentGames) {
+    if (recentGames.length === 0) {
+      return '<div class="no-games">No games played yet</div>';
+    }
+
+    return recentGames.slice(0, 5).map(game => {
+      const resultIcon = game.won ? '✅' : '❌';
+      const guessText = game.won ? `${game.guessCount}/6` : 'X/6';
+      const modeText = game.gameMode === 'daily' ? 'Daily' : 'Practice';
+      const date = new Date(game.date).toLocaleDateString();
+      
+      return `
+        <div class="recent-game">
+          <span class="game-result">${resultIcon}</span>
+          <span class="game-word">${game.targetWord}</span>
+          <span class="game-guesses">${guessText}</span>
+          <span class="game-mode">${modeText}</span>
+          <span class="game-date">${date}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Add event listeners for stats modal
+  addStatsModalListeners(modal) {
+    const closeBtn = modal.querySelector('#stats-close');
+    const exportBtn = modal.querySelector('#export-stats');
+    const resetBtn = modal.querySelector('#reset-stats');
+
+    // Close modal
+    const closeModal = () => {
+      modal.classList.remove('show');
+      setTimeout(() => modal.remove(), 300);
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Export statistics
+    exportBtn.addEventListener('click', () => {
+      this.exportStatistics();
+    });
+
+    // Reset statistics (with confirmation)
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset all statistics? This cannot be undone.')) {
+        document.dispatchEvent(new CustomEvent('resetStats'));
+        closeModal();
+        this.showMessage('Statistics have been reset', 'success');
+      }
+    });
+
+    // Close on escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // Export statistics as downloadable file
+  exportStatistics() {
+    document.dispatchEvent(new CustomEvent('exportStats'));
   }
 
   // Get current row state
