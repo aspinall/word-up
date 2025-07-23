@@ -1,74 +1,105 @@
 import './style.css'
 import { GameUI } from './ui.js'
+import { GameLogic } from './game.js'
 
 // Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const gameUI = new GameUI();
+  const gameLogic = new GameLogic();
+  
   gameUI.init();
+  
+  // Start a new game
+  const targetWord = gameLogic.startNewGame();
+  console.log('Target word:', targetWord); // For development - remove in production
 
-  // Demo functionality for testing the UI
-  // This will be replaced with actual game logic
-  let currentRow = 0;
-  let currentCol = 0;
-  const maxCols = 5;
-  const maxRows = 6;
-
-  // Handle key presses for demo
+  // Handle key presses with actual game logic
   document.addEventListener('keypress', (e) => {
     const { key } = e.detail;
 
-    if (key === 'ENTER') {
-      // Demo: simulate word validation
-      if (currentCol === maxCols) {
-        const letters = gameUI.getRowLetters(currentRow);
-        const word = letters.join('');
-        
-        if (word.length < 5) {
-          gameUI.showMessage('Not enough letters', 'error');
-          gameUI.shakeRow(currentRow);
-          return;
+    // Override getCurrentGuess method to get letters from UI
+    gameLogic.getCurrentGuess = () => {
+      const letters = gameUI.getRowLetters(gameLogic.currentRow);
+      return letters.join('').toUpperCase();
+    };
+
+    // Process the key press through game logic
+    const result = gameLogic.processKeyPress(key);
+
+    if (!result.success) {
+      // Handle errors
+      if (result.reason === 'Not enough letters' || result.reason === 'Not in word list') {
+        gameUI.showMessage(result.reason, 'error');
+        if (result.action === 'shake_row') {
+          gameUI.shakeRow(result.row);
         }
+      }
+      return;
+    }
 
-        // Demo: random feedback for testing
-        const states = letters.map(() => {
-          const rand = Math.random();
-          return rand < 0.2 ? 'correct' : rand < 0.5 ? 'present' : 'absent';
-        });
+    // Handle successful actions
+    switch (result.action) {
+      case 'add_letter':
+        gameUI.updateTile(result.row, result.col, result.letter, 'filled');
+        break;
 
-        gameUI.updateRow(currentRow, letters, states, true);
+      case 'delete_letter':
+        gameUI.clearTile(result.row, result.col);
+        break;
+
+      case 'continue_game':
+        // Update the completed row with results
+        gameUI.updateRow(result.row, result.letters, result.states, true);
         
         // Update keyboard states
-        letters.forEach((letter, i) => {
-          gameUI.updateKeyState(letter, states[i]);
+        result.letters.forEach((letter, i) => {
+          gameUI.updateKeyState(letter, result.states[i]);
         });
+        break;
 
-        currentRow++;
-        currentCol = 0;
+      case 'win_game':
+        // Update the winning row
+        gameUI.updateRow(result.row, result.letters, result.states, true);
+        
+        // Update keyboard states
+        result.letters.forEach((letter, i) => {
+          gameUI.updateKeyState(letter, result.states[i]);
+        });
+        
+        // Show win message after animation
+        setTimeout(() => {
+          gameUI.showGameStatus(true, gameLogic.targetWord, result.guessCount);
+        }, 700);
+        break;
 
-        // Demo: check for game end
-        if (states.every(state => state === 'correct')) {
-          setTimeout(() => {
-            gameUI.showGameStatus(true, word.toUpperCase(), currentRow);
-          }, 700);
-        } else if (currentRow >= maxRows) {
-          setTimeout(() => {
-            gameUI.showGameStatus(false, 'DEMO');
-          }, 700);
-        }
-      } else {
-        gameUI.showMessage('Not enough letters', 'error');
-        gameUI.shakeRow(currentRow);
-      }
-    } else if (key === 'BACKSPACE') {
-      if (currentCol > 0) {
-        currentCol--;
-        gameUI.clearTile(currentRow, currentCol);
-      }
-    } else if (key.match(/^[A-Z]$/)) {
-      if (currentRow < maxRows && currentCol < maxCols) {
-        gameUI.updateTile(currentRow, currentCol, key, 'filled');
-        currentCol++;
-      }
+      case 'lose_game':
+        // Update the final row
+        gameUI.updateRow(result.row, result.letters, result.states, true);
+        
+        // Update keyboard states
+        result.letters.forEach((letter, i) => {
+          gameUI.updateKeyState(letter, result.states[i]);
+        });
+        
+        // Show lose message after animation
+        setTimeout(() => {
+          gameUI.showGameStatus(false, result.targetWord);
+        }, 700);
+        break;
+    }
+  });
+
+  // Add restart functionality (development helper)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+      // Allow normal page refresh
+      return;
+    }
+    
+    // Restart game with 'R' key when game is over
+    if (e.key.toLowerCase() === 'r' && gameLogic.gameState !== 'playing') {
+      e.preventDefault();
+      location.reload();
     }
   });
 });
