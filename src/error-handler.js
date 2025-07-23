@@ -30,7 +30,7 @@ export class ErrorHandler {
   handleError(type, error, context = {}) {
     const errorInfo = {
       type,
-      message: error?.message || 'Unknown error',
+      message: error?.message || (typeof error === 'string' ? error : 'Unknown error'),
       stack: error?.stack,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -39,7 +39,10 @@ export class ErrorHandler {
     };
 
     // Log error for debugging
-    console.error(`[${type}]`, errorInfo);
+    console.error(`[Error Handler] ${type}`, {
+      error: typeof error === 'string' ? error : errorInfo.message,
+      context: errorInfo.context
+    });
 
     // Show user-friendly message
     this.showUserError(this.getUserFriendlyMessage(type, error));
@@ -222,14 +225,37 @@ export class ErrorHandler {
 
     addEventListener: (element, event, handler, options = {}) => {
       try {
-        if (element && typeof element.addEventListener === 'function') {
+        if (element && event && typeof element.addEventListener === 'function') {
           element.addEventListener(event, handler, options);
           return true;
         }
+        return false;
       } catch (error) {
         this.handleError('Event Listener Error', error, { event, element });
+        return false;
       }
-      return false;
+    },
+
+    createElement: (tagName, fallback = null) => {
+      try {
+        return document.createElement(tagName);
+      } catch (error) {
+        this.handleError('DOM Create Error', error, { tagName });
+        return fallback;
+      }
+    },
+
+    appendChild: (parent, child, fallback = false) => {
+      try {
+        if (parent && child && typeof parent.appendChild === 'function') {
+          parent.appendChild(child);
+          return true;
+        }
+        return fallback;
+      } catch (error) {
+        this.handleError('DOM Append Error', error, { parent, child });
+        return fallback;
+      }
     }
   };
 

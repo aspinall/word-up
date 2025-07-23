@@ -162,7 +162,99 @@ public/
 npm run dev          # Start development server
 npm run build        # Production build
 npm run preview      # Preview production build
+
+# Testing
+npm test             # Run tests in watch mode
+npm run test:run     # Run tests once
+npm run test:ui      # Run tests with UI dashboard
+npm run test:coverage # Run tests with coverage report
 ```
+
+## 🧪 Testing Infrastructure
+
+### Framework & Setup
+- **Vitest** - Modern testing framework with Vite integration
+- **jsdom** - DOM environment for testing UI components
+- **@vitest/ui** - Interactive test dashboard for development
+
+### Test Coverage
+The project includes comprehensive test suites covering:
+
+#### Core Functionality Tests
+- **GameLogic** (`src/test/game.test.js`)
+  - Game state management and initialization
+  - Key press processing and validation
+  - Word evaluation and scoring logic
+  - Win/loss detection and game completion
+  - Error handling and edge cases
+
+- **GameStatistics** (`src/test/statistics.test.js`)
+  - Statistics tracking and calculation
+  - Local storage persistence and fallback modes
+  - Data import/export functionality
+  - Game history and streak management
+  - Mode-specific statistics (daily vs practice)
+
+- **DailyWordGenerator** (`src/test/daily-word.test.js`)
+  - Deterministic daily word generation
+  - Seeded random number generation
+  - Date-based word consistency
+  - Cross-timezone compatibility
+  - System validation and security properties
+
+#### System Tests
+- **ErrorHandler** (`src/test/error-handler.test.js`)
+  - Centralized error logging and handling
+  - Safe DOM and storage operations
+  - User-friendly error display
+  - System health monitoring
+  - Graceful degradation patterns
+
+- **GameUI** (`src/test/ui.test.js`)
+  - DOM manipulation and rendering
+  - Keyboard and touch event handling
+  - Animation and visual feedback systems
+  - Statistics modal and message display
+  - Responsive behavior and accessibility
+
+- **PWAManager** (`src/test/pwa-manager.test.js`)
+  - Service worker registration and updates
+  - PWA installation prompts and detection
+  - Online/offline status management
+  - Cache management and background sync
+  - Installation state and capabilities
+
+### Test Configuration
+- **Environment**: jsdom for DOM testing
+- **Setup**: `src/test/setup.js` with browser API mocks
+- **Coverage**: Text, JSON, and HTML reporting
+- **Globals**: Vitest globals enabled for cleaner test syntax
+
+### Mock Strategy
+Tests use comprehensive mocking for:
+- Browser APIs (localStorage, navigator, service workers)
+- External dependencies (error handler, dictionaries)
+- DOM manipulation and event handling
+- Timer and animation functions
+
+### Test Organization
+```
+src/test/
+├── setup.js              # Test environment setup and mocks
+├── game.test.js          # Core game logic tests
+├── statistics.test.js    # Statistics system tests
+├── daily-word.test.js    # Daily word generation tests
+├── error-handler.test.js # Error handling system tests
+├── ui.test.js           # UI component tests
+└── pwa-manager.test.js  # PWA functionality tests
+```
+
+### Test Quality & Coverage
+- **74 passing tests** covering critical functionality
+- **Unit tests** for individual component logic
+- **Integration tests** for component interactions
+- **Error boundary tests** for graceful failure handling
+- **Edge case coverage** for robustness validation
 
 ### Git Workflow
 Latest commits show progression:

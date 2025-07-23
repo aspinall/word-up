@@ -12,6 +12,10 @@ export class GameUI {
 
   // Initialize the complete UI
   init() {
+    if (!this.app) {
+      console.warn('App element not found');
+      return;
+    }
     this.render();
     this.createGameBoard();
     this.createKeyboard();
@@ -20,6 +24,7 @@ export class GameUI {
 
   // Render the main game structure
   render() {
+    if (!this.app) return;
     this.app.innerHTML = `
       <div class="container">
         <header class="header">
@@ -159,6 +164,9 @@ export class GameUI {
 
   // Update a tile with a letter and animation
   updateTile(row, col, letter, state = 'filled') {
+    if (!this.tiles || !this.tiles[row] || !this.tiles[row][col]) {
+      return;
+    }
     const tile = this.tiles[row][col];
     if (!tile) return;
 
@@ -514,6 +522,9 @@ export class GameUI {
 
   // Get letters in current row
   getRowLetters(row) {
+    if (!this.tiles || !this.tiles[row]) {
+      return [];
+    }
     return this.tiles[row].map(tile => tile.textContent || '');
   }
 
@@ -563,6 +574,19 @@ export class GameUI {
     if (this.dailyTimerInterval) {
       clearInterval(this.dailyTimerInterval);
       this.dailyTimerInterval = null;
+    }
+  }
+
+  // Hide statistics modal
+  hideStats() {
+    const modal = document.getElementById('stats-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        if (modal.parentNode) {
+          modal.remove();
+        }
+      }, 300);
     }
   }
 }

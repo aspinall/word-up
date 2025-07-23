@@ -43,6 +43,9 @@ export class GameLogic {
       this.gameMode = 'daily';
       
       this.initialized = true;
+      
+      // Start with a daily game by default
+      this.startNewGame();
     } catch (error) {
       this.initialized = false;
       errorHandler.handleError('Game Initialization Error', error, {
