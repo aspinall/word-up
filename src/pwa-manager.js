@@ -127,17 +127,13 @@ export class PWAManager {
 
   // Setup install prompt handling
   setupInstallPrompt() {
-    console.log('[PWA] Setting up install prompt listeners');
-    
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('[PWA] beforeinstallprompt event fired');
       e.preventDefault();
       this.deferredPrompt = e;
       this.showInstallButton();
     });
     
     window.addEventListener('appinstalled', () => {
-      console.log('[PWA] App installed successfully');
       this.deferredPrompt = null;
       this.hideInstallButton();
       this.showMessage('🎉 Word Up installed successfully!', 'success');
@@ -146,9 +142,6 @@ export class PWAManager {
     // Check if already installed or installable after a delay
     setTimeout(() => {
       if (!this.deferredPrompt && !this.isAppInstalled()) {
-        console.log('[PWA] No install prompt available yet, checking PWA criteria');
-        this.checkInstallability();
-        // Show a fallback install message if PWA criteria are met
         this.showFallbackInstallInfo();
       }
     }, 3000);
@@ -202,7 +195,6 @@ export class PWAManager {
       this.deferredPrompt = null;
       return choiceResult.outcome;
     } catch (error) {
-      console.error('[PWA] Error showing install prompt:', error);
       return 'error';
     }
   }
@@ -271,35 +263,10 @@ export class PWAManager {
     }
   }
 
-  // Check PWA installability criteria
-  checkInstallability() {
-    console.log('[PWA] Checking installability criteria:');
-    console.log('- Service Worker registered:', !!this.swRegistration);
-    console.log('- HTTPS:', location.protocol === 'https:');
-    console.log('- Is installed:', this.isAppInstalled());
-    console.log('- Has beforeinstallprompt:', !!this.deferredPrompt);
-    
-    // Check if manifest is accessible
-    fetch('./manifest.webmanifest')
-      .then(response => {
-        console.log('- Manifest accessible:', response.ok);
-        return response.json();
-      })
-      .then(manifest => {
-        console.log('- Manifest loaded:', !!manifest);
-        console.log('- Manifest name:', manifest.name);
-        console.log('- Manifest icons:', manifest.icons?.length || 0);
-      })
-      .catch(error => {
-        console.log('- Manifest error:', error.message);
-      });
-  }
-
   // Show fallback install information
   showFallbackInstallInfo() {
     // Only show if service worker is registered and we're on HTTPS
     if (this.swRegistration && location.protocol === 'https:') {
-      console.log('[PWA] Showing fallback install info');
       setTimeout(() => {
         this.showMessage('💡 Add this game to your home screen! Use your browser\'s "Add to Home Screen" option.', 'info');
       }, 5000);
