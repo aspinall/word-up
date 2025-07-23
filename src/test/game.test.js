@@ -93,18 +93,6 @@ describe('GameLogic', () => {
       expect(game.letterStates.size).toBe(26)
     })
 
-    it('should reset game state for random mode', () => {
-      const originalWord = game.targetWord
-      game.startNewGame(null, 'random')
-
-      expect(game.currentRow).toBe(0)
-      expect(game.currentCol).toBe(0)
-      expect(game.gameState).toBe('playing')
-      expect(game.guesses).toEqual([])
-      expect(game.gameMode).toBe('random')
-      expect(game.targetWord).toBeDefined()
-      expect(game.targetWord.length).toBe(5)
-    })
   })
 
   describe('processKeyPress', () => {

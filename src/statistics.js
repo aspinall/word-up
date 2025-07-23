@@ -40,11 +40,6 @@ export class GameStatistics {
         currentStreak: 0,
         maxStreak: 0,
         lastPlayedDate: null
-      },
-      practiceStats: {
-        played: 0,
-        won: 0,
-        totalGuesses: 0
       }
     };
   }
@@ -87,7 +82,6 @@ export class GameStatistics {
     
     // Ensure nested objects exist
     migrated.dailyStats = { ...defaultStats.dailyStats, ...(migrated.dailyStats || {}) };
-    migrated.practiceStats = { ...defaultStats.practiceStats, ...(migrated.practiceStats || {}) };
     
     return migrated;
   }
@@ -139,12 +133,8 @@ export class GameStatistics {
       this.updateCurrentStreak(false, date);
     }
 
-    // Update mode-specific stats
-    if (gameMode === 'daily') {
-      this.updateDailyStats(won, guessCount, date);
-    } else {
-      this.updatePracticeStats(won, guessCount);
-    }
+    // Update daily stats (only mode supported)
+    this.updateDailyStats(won, guessCount, date);
 
     // Add to game history (keep last 100 games)
     const gameRecord = {
@@ -204,15 +194,6 @@ export class GameStatistics {
     this.stats.dailyStats.lastPlayedDate = date;
   }
 
-  // Update practice game statistics
-  updatePracticeStats(won, guessCount) {
-    this.stats.practiceStats.played++;
-    
-    if (won) {
-      this.stats.practiceStats.won++;
-      this.stats.practiceStats.totalGuesses += guessCount;
-    }
-  }
 
   // Update overall streak
   updateCurrentStreak(won, date) {
@@ -262,13 +243,6 @@ export class GameStatistics {
       ? Math.round((this.stats.dailyStats.won / this.stats.dailyStats.played) * 100)
       : 0;
     
-    const practiceWinRate = this.stats.practiceStats.played > 0
-      ? Math.round((this.stats.practiceStats.won / this.stats.practiceStats.played) * 100)
-      : 0;
-
-    const practiceAverage = this.stats.practiceStats.won > 0
-      ? Math.round((this.stats.practiceStats.totalGuesses / this.stats.practiceStats.won) * 10) / 10
-      : 0;
 
     return {
       overall: {
@@ -284,12 +258,6 @@ export class GameStatistics {
         winRate: dailyWinRate,
         currentStreak: this.stats.dailyStats.currentStreak,
         maxStreak: this.stats.dailyStats.maxStreak
-      },
-      practice: {
-        played: this.stats.practiceStats.played,
-        won: this.stats.practiceStats.won,
-        winRate: practiceWinRate,
-        averageGuesses: practiceAverage
       },
       guessDistribution: [...this.stats.guessDistribution],
       recentGames: this.stats.gameHistory.slice(0, 10)
@@ -422,8 +390,7 @@ export class GameStatistics {
       averageGuesses: this.stats.averageGuesses,
       guessDistribution: distributionObj,
       recentGames: this.stats.gameHistory.slice(0, 10),
-      dailyStats: this.stats.dailyStats,
-      practiceStats: this.stats.practiceStats
+      dailyStats: this.stats.dailyStats
     };
   }
 
@@ -439,15 +406,6 @@ export class GameStatistics {
         winRate,
         currentStreak: this.stats.dailyStats.currentStreak,
         maxStreak: this.stats.dailyStats.maxStreak
-      };
-    } else if (mode === 'practice') {
-      const winRate = this.stats.practiceStats.played > 0
-        ? Math.round((this.stats.practiceStats.won / this.stats.practiceStats.played) * 100)
-        : 0;
-      return {
-        totalGames: this.stats.practiceStats.played,
-        totalWins: this.stats.practiceStats.won,
-        winRate
       };
     }
     return this.getStats();

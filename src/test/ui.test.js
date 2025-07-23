@@ -154,7 +154,6 @@ describe('GameUI', () => {
         getStatistics: () => ({
           overall: { played: 10, winRate: 80, averageGuesses: 3.5 },
           daily: { played: 5, winRate: 80, currentStreak: 3, maxStreak: 5, averageGuesses: 3.2 },
-          practice: { played: 5, winRate: 80, averageGuesses: 3.8 },
           guessDistribution: [1, 2, 3, 4, 2, 0],
           recentGames: []
         }),

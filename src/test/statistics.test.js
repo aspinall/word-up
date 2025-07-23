@@ -60,7 +60,6 @@ describe('GameStatistics', () => {
         1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
       })
       expect(defaultStats.dailyStats).toBeDefined()
-      expect(defaultStats.practiceStats).toBeDefined()
       expect(defaultStats.recentGames).toEqual([])
       expect(defaultStats.version).toBe('1.0.0')
     })
@@ -74,7 +73,6 @@ describe('GameStatistics', () => {
         maxStreak: 5,
         guessDistribution: { 1: 1, 2: 2, 3: 2, 4: 2, 5: 0, 6: 0 },
         dailyStats: { totalGames: 5, totalWins: 4 },
-        practiceStats: { totalGames: 5, totalWins: 3 },
         recentGames: [],
         version: '1.0.0'
       }
@@ -113,25 +111,6 @@ describe('GameStatistics', () => {
       expect(result.recentGames).toHaveLength(1)
     })
 
-    it('should record a losing game correctly', () => {
-      const gameData = {
-        won: false,
-        guessCount: 6,
-        targetWord: 'WORLD',
-        gameMode: 'practice',
-        date: '2024-01-15'
-      }
-
-      stats.recordGame(gameData)
-      const result = stats.getRawStats()
-
-      expect(result.totalGames).toBe(1)
-      expect(result.totalWins).toBe(0)
-      expect(result.winRate).toBe(0)
-      expect(result.guessDistribution[6]).toBe(0) // Losses don't count in distribution
-      expect(result.practiceStats.totalGames).toBe(1)
-      expect(result.practiceStats.totalWins).toBe(0)
-    })
 
     it('should update streaks correctly for wins', () => {
       const winData = {
@@ -200,9 +179,7 @@ describe('GameStatistics', () => {
       const games = [
         { won: true, guessCount: 3, gameMode: 'daily' },
         { won: true, guessCount: 4, gameMode: 'daily' },
-        { won: false, guessCount: 6, gameMode: 'daily' },
-        { won: true, guessCount: 2, gameMode: 'practice' },
-        { won: true, guessCount: 5, gameMode: 'practice' }
+        { won: false, guessCount: 6, gameMode: 'daily' }
       ]
 
       games.forEach((game, i) => {
@@ -217,32 +194,27 @@ describe('GameStatistics', () => {
     it('should calculate overall statistics correctly', () => {
       const result = stats.getStats()
 
-      expect(result.totalGames).toBe(5)
-      expect(result.totalWins).toBe(4)
-      expect(result.winRate).toBe(80)
-      expect(result.averageGuesses).toBe(3.5) // (3+4+2+5)/4 wins
+      expect(result.totalGames).toBe(3)
+      expect(result.totalWins).toBe(2)
+      expect(result.winRate).toBe(67)
+      expect(result.averageGuesses).toBe(3.5) // (3+4)/2 wins
     })
 
     it('should calculate mode-specific statistics', () => {
       const dailyStats = stats.getModeStats('daily')
-      const practiceStats = stats.getModeStats('practice')
 
       expect(dailyStats.totalGames).toBe(3)
       expect(dailyStats.totalWins).toBe(2)
       expect(dailyStats.winRate).toBe(67)
-
-      expect(practiceStats.totalGames).toBe(2)
-      expect(practiceStats.totalWins).toBe(2)
-      expect(practiceStats.winRate).toBe(100)
     })
 
     it('should calculate guess distribution correctly', () => {
       const result = stats.getStats()
 
-      expect(result.guessDistribution[2]).toBe(1)
-      expect(result.guessDistribution[3]).toBe(1)
-      expect(result.guessDistribution[4]).toBe(1)
-      expect(result.guessDistribution[5]).toBe(1)
+      expect(result.guessDistribution[2]).toBe(0)
+      expect(result.guessDistribution[3]).toBe(1) // 3-guess win
+      expect(result.guessDistribution[4]).toBe(1) // 4-guess win
+      expect(result.guessDistribution[5]).toBe(0)
       expect(result.guessDistribution[6]).toBe(0)
     })
   })
@@ -308,7 +280,6 @@ describe('GameStatistics', () => {
           maxStreak: 7,
           guessDistribution: { 1: 1, 2: 2, 3: 2, 4: 2, 5: 1, 6: 0 },
           dailyStats: { totalGames: 5, totalWins: 4 },
-          practiceStats: { totalGames: 5, totalWins: 4 },
           recentGames: [],
           version: '1.0.0'
         }
@@ -390,7 +361,6 @@ describe('GameStatistics', () => {
       expect(migrated.totalGames).toBeDefined()
       expect(migrated.totalWins).toBeDefined()
       expect(migrated.dailyStats).toBeDefined()
-      expect(migrated.practiceStats).toBeDefined()
       expect(migrated.version).toBe('1.0.0')
     })
 

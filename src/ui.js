@@ -39,7 +39,6 @@ export class GameUI {
         <div class="daily-info" id="daily-info">
           <span id="daily-text">Daily Word</span>
           <span id="daily-timer"></span>
-          <button class="practice-toggle" id="practice-toggle" title="Switch to practice mode">Practice</button>
         </div>
         
         <main class="main">
@@ -364,23 +363,6 @@ export class GameUI {
             </div>
           </div>
 
-          <div class="stats-section">
-            <h3>Practice Games</h3>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-number">${stats.practice.played}</div>
-                <div class="stat-label">Played</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">${stats.practice.winRate}%</div>
-                <div class="stat-label">Win Rate</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">${stats.practice.averageGuesses}</div>
-                <div class="stat-label">Avg Guesses</div>
-              </div>
-            </div>
-          </div>
 
           <div class="stats-section">
             <h3>Guess Distribution</h3>
@@ -443,7 +425,7 @@ export class GameUI {
     return recentGames.slice(0, 5).map(game => {
       const resultIcon = game.won ? '✅' : '❌';
       const guessText = game.won ? `${game.guessCount}/6` : 'X/6';
-      const modeText = game.gameMode === 'daily' ? 'Daily' : 'Practice';
+      const modeText = 'Daily';
       const date = new Date(game.date).toLocaleDateString();
       
       return `

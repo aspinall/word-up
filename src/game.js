@@ -44,7 +44,7 @@ export class GameLogic {
       // Statistics tracking
       this.statistics = new GameStatistics();
       
-      // Game mode: 'daily' or 'random'
+      // Game mode: 'daily' only
       this.gameMode = 'daily';
       
       this.initialized = true;
@@ -63,15 +63,13 @@ export class GameLogic {
 
   // Initialize a new game
   startNewGame(targetWord = null, mode = 'daily') {
-    this.gameMode = mode;
+    this.gameMode = 'daily'; // Only daily mode supported
     
     if (targetWord) {
       this.targetWord = targetWord;
-    } else if (mode === 'daily') {
+    } else {
       const dailyWord = this.dailyWordGenerator.getTodaysWord();
       this.targetWord = dailyWord.word;
-    } else {
-      this.targetWord = this.getRandomTargetWord();
     }
     
     this.currentRow = 0;
@@ -88,11 +86,6 @@ export class GameLogic {
     return this.targetWord;
   }
 
-  // Get a random target word
-  getRandomTargetWord() {
-    const randomIndex = Math.floor(Math.random() * this.answers.length);
-    return this.answers[randomIndex];
-  }
 
   // Check if a word is valid for guessing
   isValidWord(word) {
@@ -328,10 +321,6 @@ export class GameLogic {
     return this.gameMode === 'daily';
   }
 
-  // Start a random practice game
-  startPracticeGame() {
-    return this.startNewGame(null, 'random');
-  }
 
   // Start today's daily game
   startDailyGame() {
