@@ -1,42 +1,51 @@
 // PWA Manager for Word Up
 // Handles PWA installation, offline status, and service worker communication
 
+import { errorHandler } from './error-handler.js';
+
 export class PWAManager {
   constructor() {
     this.deferredPrompt = null;
     this.isOnline = navigator.onLine;
     this.swRegistration = null;
+    this.initializationFailed = false;
     this.init();
   }
 
   // Initialize PWA functionality
   async init() {
-    this.setupOnlineOfflineHandlers();
-    this.setupInstallPrompt();
-    await this.registerServiceWorker();
-    this.setupServiceWorkerMessages();
-    this.checkForUpdates();
-    this.updateOnlineStatus();
+    try {
+      this.setupOnlineOfflineHandlers();
+      this.setupInstallPrompt();
+      await this.registerServiceWorker();
+      this.setupServiceWorkerMessages();
+      this.checkForUpdates();
+      this.updateOnlineStatus();
+    } catch (error) {
+      this.initializationFailed = true;
+      errorHandler.handleError('PWA Initialization Failed', error, {
+        operation: 'init',
+        hasServiceWorker: 'serviceWorker' in navigator,
+        isOnline: navigator.onLine
+      });
+    }
   }
 
   // Register the service worker (handled by VitePWA)
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      try {
-        // VitePWA handles registration automatically
-        // We just need to wait for it to be ready
+      return errorHandler.safeAsync(async () => {
         this.swRegistration = await navigator.serviceWorker.ready;
         
         // Listen for updates
-        this.swRegistration.addEventListener('updatefound', () => {
+        errorHandler.safeDom.addEventListener(this.swRegistration, 'updatefound', () => {
           this.handleServiceWorkerUpdate();
         });
         
         return this.swRegistration;
-      } catch (error) {
-        console.error('[PWA] Service worker registration failed:', error);
-      }
+      }, null, { operation: 'registerServiceWorker' });
     }
+    return null;
   }
 
   // Handle service worker updates

@@ -1,25 +1,24 @@
 // Statistics tracking and storage for Word Up
 // Handles game statistics, streaks, and performance metrics
 
+import { errorHandler } from './error-handler.js';
+
 export class GameStatistics {
   constructor() {
     this.storageKey = 'wordUp_statistics';
+    this.fallbackMode = false;
     this.stats = this.loadStats();
   }
 
   // Load statistics from localStorage
   loadStats() {
-    try {
-      const saved = localStorage.getItem(this.storageKey);
+    return errorHandler.safeSync(() => {
+      const saved = errorHandler.safeStorage.get(this.storageKey);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        return this.validateAndMigrateStats(parsed);
+        return this.validateAndMigrateStats(saved);
       }
-    } catch (error) {
-      console.warn('Failed to load statistics:', error);
-    }
-    
-    return this.getDefaultStats();
+      return this.getDefaultStats();
+    }, this.getDefaultStats(), { operation: 'loadStats' });
   }
 
   // Get default statistics structure
@@ -75,22 +74,29 @@ export class GameStatistics {
 
   // Save statistics to localStorage
   saveStats() {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
-      
-      // If we have a service worker, request background sync
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(registration => {
-          if ('sync' in registration) {
-            return registration.sync.register('statistics-sync');
-          }
-        }).catch(() => {
-          // Background sync not available
-        });
-      }
-    } catch (error) {
-      console.error('Failed to save statistics:', error);
+    const success = errorHandler.safeStorage.set(this.storageKey, this.stats);
+    
+    if (!success) {
+      this.fallbackMode = true;
+      errorHandler.handleError('Statistics Save Failed', new Error('Unable to save statistics'), {
+        operation: 'saveStats',
+        storageKey: this.storageKey,
+        statsSize: JSON.stringify(this.stats).length
+      });
+      return false;
     }
+
+    // Request background sync if available
+    errorHandler.safeAsync(async () => {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const registration = await navigator.serviceWorker.ready;
+        if ('sync' in registration) {
+          await registration.sync.register('statistics-sync');
+        }
+      }
+    }, null, { operation: 'backgroundSync' });
+
+    return true;
   }
 
   // Record a completed game
@@ -312,16 +318,27 @@ export class GameStatistics {
 
   // Import statistics data
   importStats(importedData) {
-    try {
-      if (importedData.statistics) {
-        this.stats = this.validateAndMigrateStats(importedData.statistics);
-        this.saveStats();
-        return true;
+    return errorHandler.safeSync(() => {
+      if (!importedData || typeof importedData !== 'object') {
+        throw new Error('Invalid import data format');
       }
-    } catch (error) {
-      console.error('Failed to import statistics:', error);
-    }
-    return false;
+      
+      if (!importedData.statistics) {
+        throw new Error('No statistics data found in import');
+      }
+      
+      const validatedStats = this.validateAndMigrateStats(importedData.statistics);
+      this.stats = validatedStats;
+      
+      if (!this.saveStats()) {
+        throw new Error('Failed to save imported statistics');
+      }
+      
+      return true;
+    }, false, { 
+      operation: 'importStats',
+      dataKeys: importedData ? Object.keys(importedData) : []
+    });
   }
 
   // Reset all statistics
@@ -333,5 +350,20 @@ export class GameStatistics {
   // Get raw statistics object
   getRawStats() {
     return { ...this.stats };
+  }
+
+  // Check if we're in fallback mode (statistics not saving)
+  isInFallbackMode() {
+    return this.fallbackMode;
+  }
+
+  // Get system health status
+  getSystemHealth() {
+    return {
+      storageWorking: !this.fallbackMode,
+      storageAvailable: errorHandler.isStorageAvailable(),
+      lastSaveSuccess: !this.fallbackMode,
+      statsCount: this.stats.totalGames
+    };
   }
 }

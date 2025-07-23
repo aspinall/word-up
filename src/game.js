@@ -4,6 +4,7 @@
 import { WORDS } from './dictionaries/words.js';
 import { DailyWordGenerator } from './daily-word.js';
 import { GameStatistics } from './statistics.js';
+import { errorHandler } from './error-handler.js';
 
 export class GameLogic {
   constructor() {
@@ -14,21 +15,42 @@ export class GameLogic {
     this.guesses = [];
     this.maxRows = 6;
     this.maxCols = 5;
+    this.initialized = false;
     
     // Letter frequency tracking for keyboard hints
     this.letterStates = new Map(); // 'unused', 'absent', 'present', 'correct'
     
-    // Single British English word dictionary
-    this.words = WORDS;
-    
-    // Daily word generator
-    this.dailyWordGenerator = new DailyWordGenerator();
-    
-    // Statistics tracking
-    this.statistics = new GameStatistics();
-    
-    // Game mode: 'daily' or 'random'
-    this.gameMode = 'daily';
+    // Initialize components with error handling
+    this.initializeGame();
+  }
+
+  // Initialize game components with error handling
+  initializeGame() {
+    try {
+      // Single British English word dictionary
+      this.words = WORDS;
+      if (!this.words || !Array.isArray(this.words) || this.words.length === 0) {
+        throw new Error('Word dictionary is empty or invalid');
+      }
+      
+      // Daily word generator
+      this.dailyWordGenerator = new DailyWordGenerator();
+      
+      // Statistics tracking
+      this.statistics = new GameStatistics();
+      
+      // Game mode: 'daily' or 'random'
+      this.gameMode = 'daily';
+      
+      this.initialized = true;
+    } catch (error) {
+      this.initialized = false;
+      errorHandler.handleError('Game Initialization Error', error, {
+        operation: 'initializeGame',
+        wordsLength: this.words?.length || 0,
+        gameMode: this.gameMode
+      });
+    }
   }
 
   // Initialize a new game
@@ -72,6 +94,10 @@ export class GameLogic {
 
   // Process a key press
   processKeyPress(key) {
+    if (!this.initialized) {
+      return { success: false, reason: 'Game not properly initialized' };
+    }
+    
     if (this.gameState !== 'playing') {
       return { success: false, reason: 'Game is over' };
     }
