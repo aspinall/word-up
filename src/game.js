@@ -255,10 +255,8 @@ export class GameLogic {
     });
   }
 
-  // Get current guess (placeholder - will be implemented with UI integration)
+  // Get current guess (overridden by UI integration)
   getCurrentGuess() {
-    // This will be provided by the UI component
-    // For now, return empty string - will be overridden
     return '';
   }
 
@@ -279,16 +277,6 @@ export class GameLogic {
     this.startNewGame();
   }
 
-  // Get hint (for development/testing)
-  getHint() {
-    if (this.gameState !== 'playing') return null;
-    
-    return {
-      targetWord: this.targetWord,
-      currentPosition: `${this.currentRow},${this.currentCol}`,
-      letterStates: Object.fromEntries(this.letterStates)
-    };
-  }
 
   // Get today's daily word information
   getTodaysWordInfo() {
@@ -325,10 +313,6 @@ export class GameLogic {
     return this.dailyWordGenerator.validateSystem();
   }
 
-  // Get preview of upcoming daily words (development only)
-  getDailyWordPreview(days = 7) {
-    return this.dailyWordGenerator.getWordPreview(days);
-  }
 
   // Get formatted statistics for display
   getStatistics() {

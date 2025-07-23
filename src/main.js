@@ -12,11 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   gameUI.init();
   
   // Start today's daily game
-  const targetWord = gameLogic.startDailyGame();
-  const dailyInfo = gameLogic.getTodaysWordInfo();
-  
-  console.log('Daily word info:', dailyInfo); // For development - remove in production
-  console.log('Target word:', targetWord); // For development - remove in production
+  gameLogic.startDailyGame();
   
   // Start the daily timer
   gameUI.startDailyTimer(gameLogic);
@@ -124,17 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Add restart functionality (development helper)
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-      // Allow normal page refresh
-      return;
-    }
-    
-    // Restart game with 'R' key when game is over
-    if (e.key.toLowerCase() === 'r' && gameLogic.gameState !== 'playing') {
-      e.preventDefault();
-      location.reload();
-    }
-  });
 });

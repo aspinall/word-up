@@ -151,10 +151,6 @@ export class GameUI {
 
   // Handle key press events (to be connected to game logic)
   handleKeyPress(key) {
-    // This will be connected to the game logic
-    // For now, just log the key press
-    console.log('Key pressed:', key);
-    
     // Dispatch custom event for game logic to handle
     document.dispatchEvent(new CustomEvent('keypress', { 
       detail: { key } 
@@ -282,7 +278,7 @@ export class GameUI {
     }, 500);
   }
 
-  // Show help modal (placeholder)
+  // Show help modal
   showHelp() {
     this.showMessage('Help: Guess the word in 6 tries! Green = correct, Yellow = wrong position, Gray = not in word', 'success');
   }

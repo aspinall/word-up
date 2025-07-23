@@ -84,8 +84,8 @@ export class GameStatistics {
           if ('sync' in registration) {
             return registration.sync.register('statistics-sync');
           }
-        }).catch(error => {
-          console.log('[Statistics] Background sync not available:', error);
+        }).catch(() => {
+          // Background sync not available
         });
       }
     } catch (error) {

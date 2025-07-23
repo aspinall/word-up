@@ -167,20 +167,4 @@ export class DailyWordGenerator {
     };
   }
 
-  // Get a preview of upcoming words (for development/testing)
-  getWordPreview(days = 7) {
-    const preview = [];
-    const startDay = this.getCurrentDayNumber();
-    
-    for (let i = 0; i < days; i++) {
-      const dayNumber = startDay + i;
-      const wordInfo = this.getWordForDay(dayNumber);
-      preview.push({
-        ...wordInfo,
-        isToday: i === 0
-      });
-    }
-    
-    return preview;
-  }
 }

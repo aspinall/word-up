@@ -26,11 +26,9 @@ export class PWAManager {
         // VitePWA handles registration automatically
         // We just need to wait for it to be ready
         this.swRegistration = await navigator.serviceWorker.ready;
-        console.log('[PWA] Service worker ready');
         
         // Listen for updates
         this.swRegistration.addEventListener('updatefound', () => {
-          console.log('[PWA] New service worker found');
           this.handleServiceWorkerUpdate();
         });
         
@@ -38,8 +36,6 @@ export class PWAManager {
       } catch (error) {
         console.error('[PWA] Service worker registration failed:', error);
       }
-    } else {
-      console.log('[PWA] Service workers not supported');
     }
   }
 
@@ -123,14 +119,12 @@ export class PWAManager {
   // Setup install prompt handling
   setupInstallPrompt() {
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('[PWA] Install prompt available');
       e.preventDefault();
       this.deferredPrompt = e;
       this.showInstallButton();
     });
     
     window.addEventListener('appinstalled', () => {
-      console.log('[PWA] App was installed');
       this.deferredPrompt = null;
       this.hideInstallButton();
       this.showMessage('🎉 Word Up installed successfully!', 'success');
@@ -176,20 +170,11 @@ export class PWAManager {
   // Prompt user to install
   async promptInstall() {
     if (!this.deferredPrompt) {
-      console.log('[PWA] No install prompt available');
       return;
     }
     
     try {
       const result = await this.deferredPrompt.prompt();
-      console.log('[PWA] Install prompt result:', result.outcome);
-      
-      if (result.outcome === 'accepted') {
-        console.log('[PWA] User accepted the install prompt');
-      } else {
-        console.log('[PWA] User dismissed the install prompt');
-      }
-      
       this.deferredPrompt = null;
     } catch (error) {
       console.error('[PWA] Error showing install prompt:', error);
@@ -200,7 +185,6 @@ export class PWAManager {
   setupServiceWorkerMessages() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
-        console.log('[PWA] Message from service worker:', event.data);
         
         const { type, message, online } = event.data;
         
@@ -211,11 +195,7 @@ export class PWAManager {
             break;
             
           case 'SYNC_STATISTICS':
-            console.log('[PWA] Statistics sync message:', message);
             break;
-            
-          default:
-            console.log('[PWA] Unknown message type:', type);
         }
       });
     }
@@ -276,7 +256,6 @@ export class PWAManager {
     if ('storage' in navigator && 'persist' in navigator.storage) {
       try {
         const persistent = await navigator.storage.persist();
-        console.log(`[PWA] Persistent storage: ${persistent ? 'granted' : 'denied'}`);
         return persistent;
       } catch (error) {
         console.error('[PWA] Error requesting persistent storage:', error);
