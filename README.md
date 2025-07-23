@@ -5,6 +5,7 @@ A British English Wordle-style word game with daily challenges and Progressive W
 [![Tests](https://img.shields.io/badge/tests-153%20passing-brightgreen)]()
 [![PWA](https://img.shields.io/badge/PWA-enabled-blue)]()
 [![British English](https://img.shields.io/badge/dictionary-British%20English-red)]()
+[![Deploy](https://github.com/aspinall/word-up/actions/workflows/deploy.yml/badge.svg)](https://github.com/aspinall/word-up/actions/workflows/deploy.yml)
 
 ## 🎯 Features
 
@@ -19,7 +20,9 @@ A British English Wordle-style word game with daily challenges and Progressive W
 ## 🚀 Quick Start
 
 ### Play Online
-Visit the live game at: [Your deployment URL here]
+🎮 **[Play Word Up Now!](https://aspinall.github.io/word-up/)**
+
+Visit the live game at: https://aspinall.github.io/word-up/
 
 ### Local Development
 
