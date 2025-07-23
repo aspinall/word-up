@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/word-up/' : '/',
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -55,8 +56,8 @@ export default defineConfig({
         background_color: '#1a202c',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/word-up/',
+        start_url: '/word-up/',
         lang: 'en-GB',
         categories: ['games', 'entertainment', 'education'],
         icons: [
